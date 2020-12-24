@@ -20,6 +20,7 @@
 #include "flash.h"
 #include "cli.h"
 #include "button.h"
+#include "gpio.h"
 
 
 void hwInit(void);
