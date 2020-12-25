@@ -18,6 +18,7 @@
 #define _USE_HW_USB
 #define _USE_HW_CDC
 #define _USE_HW_SD
+#define _USE_HW_FATFS
 
 
 #define _USE_HW_LED
