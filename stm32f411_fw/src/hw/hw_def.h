@@ -17,6 +17,7 @@
 
 #define _USE_HW_USB
 #define _USE_HW_CDC
+#define _USE_HW_SD
 
 
 #define _USE_HW_LED
@@ -39,7 +40,7 @@
 
 
 
-#define _PIN_GPIO_SD_CD             0
+#define _PIN_GPIO_SDCARD_DETECT     0
 
 
 
