@@ -23,7 +23,7 @@
 #include "sdio.h"
 #include "spi.h"
 #include "usart.h"
-#include "usb_device.h"
+#include "usb_otg.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -91,11 +91,11 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_USB_DEVICE_Init();
   MX_SDIO_SD_Init();
   MX_SPI1_Init();
   MX_SPI4_Init();
   MX_USART1_UART_Init();
+  MX_USB_OTG_FS_PCD_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */

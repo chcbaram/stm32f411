@@ -23,6 +23,7 @@
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN INCLUDE */
+#include "cdc.h"
 USBD_CDC_LineCodingTypeDef LineCoding =
     {
         115200,
@@ -80,6 +81,11 @@ uint32_t cdcWrite(uint8_t *p_data, uint32_t length)
 {
   uint32_t pre_time;
   uint8_t ret;
+
+  if (cdcIsInit() != true)
+  {
+    return 0;
+  }
 
   pre_time = millis();
   while(1)

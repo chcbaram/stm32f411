@@ -66,10 +66,10 @@
 #define USBD_VID     1155
 #define USBD_LANGID_STRING     1033
 #define USBD_MANUFACTURER_STRING     "STMicroelectronics"
-#define USBD_PID_FS     22336
-#define USBD_PRODUCT_STRING_FS     "STM32 Virtual ComPort"
-#define USBD_CONFIGURATION_STRING_FS     "CDC Config"
-#define USBD_INTERFACE_STRING_FS     "CDC Interface"
+#define USBD_PID_FS     22314
+#define USBD_PRODUCT_STRING_FS     "STM32 Mass Storage"
+#define USBD_CONFIGURATION_STRING_FS     "MSC Config"
+#define USBD_INTERFACE_STRING_FS     "MSC Interface"
 
 #define USB_SIZ_BOS_DESC            0x0C
 
@@ -135,7 +135,7 @@ uint8_t * USBD_FS_USR_BOSDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
   * @{
   */
 
-USBD_DescriptorsTypeDef FS_Desc =
+USBD_DescriptorsTypeDef MSC_Desc =
 {
   USBD_FS_DeviceDescriptor
 , USBD_FS_LangIDStrDescriptor
@@ -153,7 +153,7 @@ USBD_DescriptorsTypeDef FS_Desc =
   #pragma data_alignment=4
 #endif /* defined ( __ICCARM__ ) */
 /** USB standard device descriptor. */
-__ALIGN_BEGIN uint8_t USBD_FS_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
+static __ALIGN_BEGIN uint8_t USBD_FS_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
 {
   0x12,                       /*bLength */
   USB_DESC_TYPE_DEVICE,       /*bDescriptorType*/
@@ -165,8 +165,8 @@ __ALIGN_BEGIN uint8_t USBD_FS_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
   0x00,                       /*bcdUSB */
 #endif /* (USBD_LPM_ENABLED == 1) */
   0x02,
-  0x02,                       /*bDeviceClass*/
-  0x02,                       /*bDeviceSubClass*/
+  0x00,                       /*bDeviceClass*/
+  0x00,                       /*bDeviceSubClass*/
   0x00,                       /*bDeviceProtocol*/
   USB_MAX_EP0_SIZE,           /*bMaxPacketSize*/
   LOBYTE(USBD_VID),           /*idVendor*/
@@ -219,7 +219,7 @@ __ALIGN_BEGIN uint8_t USBD_FS_BOSDesc[USB_SIZ_BOS_DESC] __ALIGN_END =
 #endif /* defined ( __ICCARM__ ) */
 
 /** USB lang indentifier descriptor. */
-__ALIGN_BEGIN uint8_t USBD_LangIDDesc[USB_LEN_LANGID_STR_DESC] __ALIGN_END =
+static __ALIGN_BEGIN uint8_t USBD_LangIDDesc[USB_LEN_LANGID_STR_DESC] __ALIGN_END =
 {
      USB_LEN_LANGID_STR_DESC,
      USB_DESC_TYPE_STRING,
@@ -236,7 +236,7 @@ __ALIGN_BEGIN uint8_t USBD_StrDesc[USBD_MAX_STR_DESC_SIZ] __ALIGN_END;
 #if defined ( __ICCARM__ ) /*!< IAR Compiler */
   #pragma data_alignment=4
 #endif
-__ALIGN_BEGIN uint8_t USBD_StringSerial[USB_SIZ_STRING_SERIAL] __ALIGN_END = {
+static __ALIGN_BEGIN uint8_t USBD_StringSerial[USB_SIZ_STRING_SERIAL] __ALIGN_END = {
   USB_SIZ_STRING_SERIAL,
   USB_DESC_TYPE_STRING,
 };

@@ -16,6 +16,7 @@
 
 
 bool     cdcInit(void);
+bool     cdcIsInit(void);
 uint32_t cdcAvailable(void);
 uint8_t  cdcRead(void);
 void     cdcDataIn(uint8_t rx_data);
