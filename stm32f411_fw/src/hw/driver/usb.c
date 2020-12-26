@@ -82,6 +82,7 @@ bool usbBegin(UsbMode usb_mode)
 
     cdcInit();
 
+    is_usb_mode = USB_CDC_MODE;
     ret = true;
   }
 #endif
@@ -107,6 +108,7 @@ bool usbBegin(UsbMode usb_mode)
       return false;
     }
 
+    is_usb_mode = USB_MSC_MODE;
     ret = true;
   }
 #endif
