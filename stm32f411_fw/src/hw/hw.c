@@ -22,6 +22,7 @@ void hwInit(void)
   uartInit();
   buttonInit();
   gpioInit();
+  flashInit();
 
   if (sdInit() == true)
   {

@@ -17,6 +17,7 @@
 
 #define _USE_HW_SD
 #define _USE_HW_FATFS
+#define _USE_HW_FLASH
 
 
 #define _USE_HW_LED
@@ -29,7 +30,7 @@
 #define      HW_CLI_CMD_LIST_MAX    16
 #define      HW_CLI_CMD_NAME_MAX    16
 #define      HW_CLI_LINE_HIS_MAX    4
-#define      HW_CLI_LINE_BUF_MAX    32
+#define      HW_CLI_LINE_BUF_MAX    64
 
 #define _USE_HW_BUTTON
 #define      HW_BUTTON_MAX_CH       1
