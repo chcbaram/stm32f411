@@ -32,6 +32,11 @@
 #define _DEF_BUTTON3          2
 #define _DEF_BUTTON4          3
 
+#define _DEF_SPI1             0
+#define _DEF_SPI2             1
+#define _DEF_SPI3             2
+#define _DEF_SPI4             3
+
 #define _DEF_LOW              0
 #define _DEF_HIGH             1
 
@@ -41,6 +46,22 @@
 #define _DEF_OUTPUT           3
 #define _DEF_OUTPUT_PULLUP    4
 #define _DEF_OUTPUT_PULLDOWN  5
+
+
+
+
+
+#define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
+
+#ifndef max
+#define max(a,b) (((a) > (b)) ? (a) : (b))
+#define min(a,b) (((a) < (b)) ? (a) : (b))
+#endif
+
+
+#ifndef map
+#define map(value, in_min, in_max, out_min, out_max) ((value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
+#endif
 
 
 
