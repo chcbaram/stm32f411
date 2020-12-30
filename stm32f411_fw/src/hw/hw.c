@@ -30,6 +30,10 @@ void hwInit(void)
     fatfsInit();
   }
 
+  lcdInit();
+  mcp2515Init();
+
+
   if (buttonGetPressed(_DEF_BUTTON1) == true && sdIsDetected() == true)
   {
     usbBegin(USB_MSC_MODE);
@@ -38,7 +42,4 @@ void hwInit(void)
   {
     usbBegin(USB_CDC_MODE);
   }
-
-  lcdInit();
-  mcp2515Init();
 }

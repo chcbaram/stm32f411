@@ -14,6 +14,7 @@ typedef struct
 {
   bool is_open;
   bool is_tx_done;
+  bool is_error;
 
   void (*func_tx)(void);
 
@@ -42,6 +43,7 @@ bool spiInit(void)
   {
     spi_tbl[i].is_open = false;
     spi_tbl[i].is_tx_done = true;
+    spi_tbl[i].is_error = false;
     spi_tbl[i].func_tx = NULL;
     spi_tbl[i].h_dma_rx = NULL;
     spi_tbl[i].h_dma_tx = NULL;
@@ -74,6 +76,7 @@ bool spiBegin(uint8_t ch)
       hspi4.Init.CRCCalculation   = SPI_CRCCALCULATION_DISABLE;
       hspi4.Init.CRCPolynomial    = 10;
 
+      HAL_SPI_DeInit(&hspi4);
       if (HAL_SPI_Init(&hspi4) == HAL_OK)
       {
         p_spi->is_open = true;
@@ -97,6 +100,7 @@ bool spiBegin(uint8_t ch)
       hspi1.Init.CRCCalculation   = SPI_CRCCALCULATION_DISABLE;
       hspi1.Init.CRCPolynomial    = 10;
 
+      HAL_SPI_DeInit(&hspi1);
       if (HAL_SPI_Init(&hspi1) == HAL_OK)
       {
         p_spi->is_open = true;
@@ -292,6 +296,13 @@ void spiAttachTxInterrupt(uint8_t ch, void (*func)())
 
 
 
+void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
+{
+  if (hspi->Instance == spi_tbl[_DEF_SPI1].h_spi->Instance)
+  {
+    spi_tbl[_DEF_SPI1].is_error = true;
+  }
+}
 
 void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
 {
