@@ -25,6 +25,9 @@
 #include "fatfs.h"
 #include "spi.h"
 #include "lcd.h"
+#include "mcp2515.h"
+
+
 
 void hwInit(void);
 

@@ -18,6 +18,7 @@
 #define _USE_HW_SD
 #define _USE_HW_FATFS
 #define _USE_HW_FLASH
+#define _USE_HW_MCP2515
 
 
 #define _USE_HW_LED
@@ -36,7 +37,7 @@
 #define      HW_BUTTON_MAX_CH       1
 
 #define _USE_HW_GPIO
-#define      HW_GPIO_MAX_CH         4
+#define      HW_GPIO_MAX_CH         6
 
 #define _USE_HW_CDC
 #define _USE_HW_USB
@@ -44,7 +45,7 @@
 #define      HW_USE_MSC             1
 
 #define _USE_HW_SPI
-#define      HW_SPI_MAX_CH          1
+#define      HW_SPI_MAX_CH          2
 
 #define _USE_HW_LCD
 #define _USE_HW_ST7735

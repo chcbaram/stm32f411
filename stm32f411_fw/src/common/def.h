@@ -47,6 +47,16 @@
 #define _DEF_OUTPUT_PULLUP    4
 #define _DEF_OUTPUT_PULLDOWN  5
 
+#define _DEF_CAN1             0
+#define _DEF_CAN2             1
+
+#define _DEF_CAN_125K         0
+#define _DEF_CAN_250K         1
+#define _DEF_CAN_500K         2
+#define _DEF_CAN_1000K        3
+
+#define _DEF_CAN_STD          0
+#define _DEF_CAN_EXT          1
 
 
 

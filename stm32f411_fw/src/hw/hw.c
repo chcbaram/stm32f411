@@ -7,7 +7,7 @@
 
 
 #include "hw.h"
-#include "lcd/st7735.h"
+
 
 
 
@@ -40,5 +40,5 @@ void hwInit(void)
   }
 
   lcdInit();
-
+  mcp2515Init();
 }

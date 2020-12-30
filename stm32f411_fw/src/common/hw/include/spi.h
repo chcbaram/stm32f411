@@ -26,6 +26,7 @@ bool spiBegin(uint8_t ch);
 void spiSetDataMode(uint8_t ch, uint8_t dataMode);
 void spiSetBitWidth(uint8_t ch, uint8_t bit_width);
 
+bool     spiTransfer(uint8_t ch, uint8_t *tx_buf, uint8_t *rx_buf, uint32_t length, uint32_t timeout);
 uint8_t  spiTransfer8(uint8_t ch, uint8_t data);
 uint16_t spiTransfer16(uint8_t ch, uint16_t data);
 

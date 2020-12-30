@@ -207,6 +207,16 @@ bool cliMain(void)
   return true;
 }
 
+uint32_t cliAvailable(void)
+{
+  return uartAvailable(cli_node.ch);
+}
+
+uint8_t cliRead(void)
+{
+  return uartRead(cli_node.ch);
+}
+
 bool cliUpdate(cli_t *p_cli, uint8_t rx_data)
 {
   bool ret = false;
