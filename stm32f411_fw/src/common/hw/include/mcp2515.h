@@ -86,6 +86,7 @@ bool mcp2515SetMode(McpMode mode);
 bool mcp2515SetBaud(McpBaud baud);
 bool mcp2515SetFilterMask(uint8_t index, const bool ext, const uint32_t data);
 McpMode mcp2515GetMode(void);
+McpBaud mcp2515GetBaud(void);
 uint8_t mcp2515ReadStatus(void);
 uint8_t mcp2515ReadErrorFlags(void);
 

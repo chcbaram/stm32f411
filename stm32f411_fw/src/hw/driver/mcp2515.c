@@ -187,6 +187,11 @@ bool mcp2515SetBaud(McpBaud baud)
   return ret;
 }
 
+McpBaud mcp2515GetBaud(void)
+{
+  return is_baud;
+}
+
 uint8_t mcp2515ReadStatus(void)
 {
   uint8_t ret = 0;
