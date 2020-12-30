@@ -58,13 +58,16 @@ void lcdMain(void)
 
     lcdClearBuffer(black);
 
-    lcdPrintf(24,16*0, green, " [CAN 통신]");
+    lcdSetFont(LCD_FONT_HAN);
+    lcdPrintf(24,16*0, green, "[CAN 통신]");
+
+    lcdSetFont(LCD_FONT_07x10);
 
     mode = mcp2515GetMode();
     baud = mcp2515GetBaud();
 
     x = 0;
-    y = 16*1;
+    y = 18 + 12*0;
     switch(mode)
     {
       case MCP_MODE_NORMAL:
@@ -85,7 +88,7 @@ void lcdMain(void)
     }
 
     x = 0;
-    y = 16*2;
+    y = 18 + 12*1;
     switch(baud)
     {
       case MCP_BAUD_125K:

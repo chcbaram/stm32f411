@@ -12,6 +12,9 @@
 #include "lcd/st7735_regs.h"
 
 
+
+#ifdef _USE_HW_ST7735
+
 #define _PIN_DEF_BKT    1
 #define _PIN_DEF_DC     3
 #define _PIN_DEF_CS     2
@@ -309,3 +312,6 @@ bool st7735SetCallBack(void (*p_func)(void))
 
   return true;
 }
+
+
+#endif

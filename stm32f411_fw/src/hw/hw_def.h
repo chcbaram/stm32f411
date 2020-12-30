@@ -48,10 +48,19 @@
 #define      HW_SPI_MAX_CH          2
 
 #define _USE_HW_LCD
+#if 0
 #define _USE_HW_ST7735
 #define      HW_LCD_WIDTH           160
 #define      HW_LCD_HEIGHT          80
+#else
+#define _USE_HW_SSD1306
+#define      HW_LCD_WIDTH           128
+#define      HW_LCD_HEIGHT          64
+#endif
 
+
+#define _USE_HW_I2C
+#define      HW_I2C_MAX_CH          1
 
 
 #define _PIN_GPIO_SDCARD_DETECT     0

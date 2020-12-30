@@ -20,6 +20,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "dma.h"
+#include "i2c.h"
 #include "i2s.h"
 #include "sdio.h"
 #include "spi.h"
@@ -98,6 +99,7 @@ int main(void)
   MX_USB_OTG_FS_PCD_Init();
   MX_I2S5_Init();
   MX_SPI1_Init();
+  MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */

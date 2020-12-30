@@ -59,25 +59,17 @@ void HAL_I2S_MspInit(I2S_HandleTypeDef* i2sHandle)
     __HAL_RCC_SPI5_CLK_ENABLE();
 
     __HAL_RCC_GPIOB_CLK_ENABLE();
-    __HAL_RCC_GPIOA_CLK_ENABLE();
     /**I2S5 GPIO Configuration
     PB0     ------> I2S5_CK
     PB1     ------> I2S5_WS
-    PA10     ------> I2S5_SD
+    PB8     ------> I2S5_SD
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1;
+    GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_8;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     GPIO_InitStruct.Alternate = GPIO_AF6_SPI5;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-    GPIO_InitStruct.Pin = GPIO_PIN_10;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF6_SPI5;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /* USER CODE BEGIN SPI5_MspInit 1 */
 
@@ -99,11 +91,9 @@ void HAL_I2S_MspDeInit(I2S_HandleTypeDef* i2sHandle)
     /**I2S5 GPIO Configuration
     PB0     ------> I2S5_CK
     PB1     ------> I2S5_WS
-    PA10     ------> I2S5_SD
+    PB8     ------> I2S5_SD
     */
-    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_0|GPIO_PIN_1);
-
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_10);
+    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_8);
 
   /* USER CODE BEGIN SPI5_MspDeInit 1 */
 

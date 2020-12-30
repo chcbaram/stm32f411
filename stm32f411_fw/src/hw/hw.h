@@ -26,7 +26,7 @@
 #include "spi.h"
 #include "lcd.h"
 #include "mcp2515.h"
-
+#include "i2c.h"
 
 
 void hwInit(void);
