@@ -402,10 +402,18 @@ bool lcdRequestDraw(void)
 
 void lcdUpdateDraw(void)
 {
+  uint32_t pre_time;
+
   lcdRequestDraw();
+
+  pre_time = millis();
   while(lcdDrawAvailable() != true)
   {
     delay(1);
+    if (millis()-pre_time >= 100)
+    {
+      break;
+    }
   }
 }
 

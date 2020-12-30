@@ -282,7 +282,10 @@ void st7735FillRect(int32_t x, int32_t y, int32_t w, int32_t h, uint32_t color)
   }
   for (int i=0; i<h; i++)
   {
-    spiDmaTxTransfer(_DEF_SPI1, (void *)line_buf, w, 10);
+    if (spiDmaTxTransfer(_DEF_SPI1, (void *)line_buf, w, 10) != true)
+    {
+      break;
+    }
   }
   gpioPinWrite(_PIN_DEF_CS, _DEF_HIGH);
 }

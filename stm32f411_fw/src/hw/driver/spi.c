@@ -90,7 +90,7 @@ bool spiBegin(uint8_t ch)
       hspi1.Init.DataSize         = SPI_DATASIZE_8BIT;
       hspi1.Init.CLKPolarity      = SPI_POLARITY_LOW;
       hspi1.Init.CLKPhase         = SPI_PHASE_1EDGE;
-      hspi1.Init.NSS              = SPI_NSS_HARD_OUTPUT;
+      hspi1.Init.NSS              = SPI_NSS_SOFT;
       hspi1.Init.BaudRatePrescaler= SPI_BAUDRATEPRESCALER_16;
       hspi1.Init.FirstBit         = SPI_FIRSTBIT_MSB;
       hspi1.Init.TIMode           = SPI_TIMODE_DISABLE;
@@ -171,7 +171,7 @@ uint8_t spiTransfer8(uint8_t ch, uint8_t data)
 
   if (p_spi->is_open == false) return 0;
 
-  HAL_SPI_TransmitReceive(p_spi->h_spi, &data, &ret, 1, 0xffff);
+  HAL_SPI_TransmitReceive(p_spi->h_spi, &data, &ret, 1, 10);
 
   return ret;
 }
@@ -190,7 +190,7 @@ uint16_t spiTransfer16(uint8_t ch, uint16_t data)
   {
     tBuf[1] = (uint8_t)data;
     tBuf[0] = (uint8_t)(data>>8);
-    HAL_SPI_TransmitReceive(p_spi->h_spi, (uint8_t *)&tBuf, (uint8_t *)&rBuf, 2, 0xffff);
+    HAL_SPI_TransmitReceive(p_spi->h_spi, (uint8_t *)&tBuf, (uint8_t *)&rBuf, 2, 10);
 
     ret = rBuf[0];
     ret <<= 8;
@@ -198,7 +198,7 @@ uint16_t spiTransfer16(uint8_t ch, uint16_t data)
   }
   else
   {
-    HAL_SPI_TransmitReceive(p_spi->h_spi, (uint8_t *)&data, (uint8_t *)&ret, 1, 0xffff);
+    HAL_SPI_TransmitReceive(p_spi->h_spi, (uint8_t *)&data, (uint8_t *)&ret, 1, 10);
   }
 
   return ret;
@@ -243,8 +243,9 @@ void spiDmaTxStart(uint8_t spi_ch, uint8_t *p_buf, uint32_t length)
   HAL_SPI_Transmit_DMA(p_spi->h_spi, p_buf, length);
 }
 
-void spiDmaTxTransfer(uint8_t ch, void *buf, uint32_t length, uint32_t timeout)
+bool spiDmaTxTransfer(uint8_t ch, void *buf, uint32_t length, uint32_t timeout)
 {
+  bool ret = true;
   uint32_t t_time;
 
 
@@ -252,7 +253,7 @@ void spiDmaTxTransfer(uint8_t ch, void *buf, uint32_t length, uint32_t timeout)
 
   t_time = millis();
 
-  if (timeout == 0) return;
+  if (timeout == 0) return true;
 
   while(1)
   {
@@ -262,9 +263,12 @@ void spiDmaTxTransfer(uint8_t ch, void *buf, uint32_t length, uint32_t timeout)
     }
     if((millis()-t_time) > timeout)
     {
+      ret = false;
       break;
     }
   }
+
+  return ret;
 }
 
 bool spiDmaTxIsDone(uint8_t ch)
@@ -413,7 +417,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     HAL_NVIC_SetPriority(SPI4_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(SPI4_IRQn);
   /* USER CODE BEGIN SPI4_MspInit 1 */
-    HAL_NVIC_SetPriority(DMA2_Stream1_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(DMA2_Stream1_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(DMA2_Stream1_IRQn);
   /* USER CODE END SPI4_MspInit 1 */
   }
