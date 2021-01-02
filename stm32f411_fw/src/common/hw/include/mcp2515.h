@@ -51,7 +51,21 @@
 
 #define MCP_RXMSIDH(x)              (0x20 + ((x)*4))
 
+#define MCP_MASK_MAX                2
+#define MCP_FILTER_MAX              6
 
+
+enum CANINTF
+{
+  CANINTF_RX0IF = 0x01,
+  CANINTF_RX1IF = 0x02,
+  CANINTF_TX0IF = 0x04,
+  CANINTF_TX1IF = 0x08,
+  CANINTF_TX2IF = 0x10,
+  CANINTF_ERRIF = 0x20,
+  CANINTF_WAKIF = 0x40,
+  CANINTF_MERRF = 0x80
+};
 
 
 typedef enum
@@ -85,6 +99,7 @@ bool mcp2515Reset(void);
 bool mcp2515SetMode(McpMode mode);
 bool mcp2515SetBaud(McpBaud baud);
 bool mcp2515SetFilterMask(uint8_t index, const bool ext, const uint32_t data);
+bool mcp2515SetFilter(uint8_t index, const bool ext, const uint32_t data);
 McpMode mcp2515GetMode(void);
 McpBaud mcp2515GetBaud(void);
 uint8_t mcp2515ReadStatus(void);

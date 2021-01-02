@@ -32,6 +32,17 @@ static const uint8_t TXB_EXIDE_MASK = 0x08;
 static const uint8_t DLC_MASK       = 0x0F;
 //static const uint8_t RTR_MASK       = 0x40;
 
+//static const uint8_t RXBnCTRL_RXM_STD    = 0x20;
+//static const uint8_t RXBnCTRL_RXM_EXT    = 0x40;
+static const uint8_t RXBnCTRL_RXM_STDEXT = 0x00;
+static const uint8_t RXBnCTRL_RXM_MASK   = 0x60;
+//static const uint8_t RXBnCTRL_RTR        = 0x08;
+static const uint8_t RXB0CTRL_BUKT       = 0x04;
+static const uint8_t RXB0CTRL_FILHIT_MASK = 0x03;
+static const uint8_t RXB1CTRL_FILHIT_MASK = 0x07;
+static const uint8_t RXB0CTRL_FILHIT = 0x00;
+static const uint8_t RXB1CTRL_FILHIT = 0x01;
+
 
 const uint8_t spi_ch = _DEF_SPI2;
 static bool is_init = false;
@@ -75,11 +86,51 @@ bool mcp2515Init(void)
 
   if (is_init == true)
   {
+    uint8_t zeros[14];
+
+
+    memset(zeros, 0, sizeof(zeros));
+    mcp2515WriteRegs(MCP_TXB0CTRL, zeros, 14);
+    mcp2515WriteRegs(MCP_TXB1CTRL, zeros, 14);
+    mcp2515WriteRegs(MCP_TXB2CTRL, zeros, 14);
+
+    mcp2515WriteReg(MCP_RXB0CTRL, 0);
+    mcp2515WriteReg(MCP_RXB1CTRL, 0);
+
+    mcp2515WriteReg(MCP_CANINTE, CANINTF_RX0IF | CANINTF_RX1IF | CANINTF_ERRIF | CANINTF_MERRF);
+
+    // receives all valid messages using either Standard or Extended Identifiers that
+    // meet filter criteria. RXF0 is applied for RXB0, RXF1 is applied for RXB1
+    mcp2515ModifyReg(MCP_RXB0CTRL,
+                   RXBnCTRL_RXM_MASK | RXB0CTRL_BUKT | RXB0CTRL_FILHIT_MASK,
+                   RXBnCTRL_RXM_STDEXT | RXB0CTRL_BUKT | RXB0CTRL_FILHIT);
+    mcp2515ModifyReg(MCP_RXB1CTRL,
+                   RXBnCTRL_RXM_MASK | RXB1CTRL_FILHIT_MASK,
+                   RXBnCTRL_RXM_STDEXT | RXB1CTRL_FILHIT);
+
+
+    for (int i=0; i<MCP_FILTER_MAX; i++)
+    {
+      bool ext;
+
+      if (i == 1)
+      {
+        ext = true;
+      }
+      else
+      {
+        ext = false;
+      }
+      mcp2515SetFilter(i, ext, 0);
+    }
+    for (int i=0; i<MCP_MASK_MAX; i++)
+    {
+      mcp2515SetFilterMask(i, true, 0);
+    }
+
+
     mcp2515SetMode(MCP_MODE_LOOPBACK);
     mcp2515SetBaud(MCP_BAUD_125K);
-
-    mcp2515SetFilterMask(0, true, 0);
-    mcp2515SetFilterMask(1, true, 0);
   }
 
 #ifdef _USE_HW_CLI
@@ -245,7 +296,7 @@ bool mcp2515SetFilterMask(uint8_t index, const bool ext, const uint32_t data)
   uint8_t buf[4];
   McpMode mode;
 
-  if (index >= 2) return false;
+  if (index >= MCP_MASK_MAX) return false;
 
 
   mcp2515PrepareID(buf, ext, data);
@@ -254,6 +305,28 @@ bool mcp2515SetFilterMask(uint8_t index, const bool ext, const uint32_t data)
   mcp2515SetMode(MCP_MODE_CONFIG);
 
   ret = mcp2515WriteRegs(MCP_RXMSIDH(index), buf, 4);
+
+  mcp2515SetMode(mode);
+
+  return ret;
+}
+
+bool mcp2515SetFilter(uint8_t index, const bool ext, const uint32_t data)
+{
+  bool ret;
+  uint8_t buf[4];
+  McpMode mode;
+  const uint8_t rxf_addr[MCP_FILTER_MAX] = {0x00, 0x04, 0x08, 0x10, 0x14, 0x18};
+
+  if (index >= MCP_FILTER_MAX) return false;
+
+
+  mcp2515PrepareID(buf, ext, data);
+
+  mode = mcp2515GetMode();
+  mcp2515SetMode(MCP_MODE_CONFIG);
+
+  ret = mcp2515WriteRegs(rxf_addr[index], buf, 4);
 
   mcp2515SetMode(mode);
 
