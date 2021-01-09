@@ -10,6 +10,8 @@
 #include "cli.h"
 #include "files.h"
 #include "gpio.h"
+#include "lcd.h"
+
 
 #ifdef _USE_HW_I2S
 
@@ -101,6 +103,9 @@ bool i2sStart(void)
 {
   HAL_StatusTypeDef status;
   I2S_HandleTypeDef *p_i2s = &hi2s5;
+
+  q_in  = 0;
+  q_out = 0;
 
   status = HAL_I2S_Transmit_DMA(p_i2s, (uint16_t *)q_buf_zero, q_buf_len*2);
   if (status == HAL_OK)
@@ -307,6 +312,16 @@ void cliI2S(cli_args_t *args)
     cliPrintf("BlockAlign    : %d\n", header.BlockAlign);
     cliPrintf("BitsPerSample : %d\n", header.BitsPerSample);
     cliPrintf("Subchunk2Size : %d\n", header.Subchunk2Size);
+
+    lcdClearBuffer(black);
+    lcdSetFont(LCD_FONT_HAN);
+    lcdPrintf(24,16*0, green, "WAV 플레이");
+
+    lcdSetFont(LCD_FONT_07x10);
+    lcdPrintf(20,18*1+10*0, white, "%s", file_name);
+    lcdPrintf(20,18*1+10*1, white, "%d Khz", header.SampleRate/1000);
+    lcdPrintf(20,18*1+10*2, white, "%d ch", header.NumChannels);
+    lcdRequestDraw();
 
     i2sStart();
 
