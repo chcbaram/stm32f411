@@ -25,6 +25,7 @@ void hwInit(void)
   flashInit();
   spiInit();
   i2cInit();
+  i2sInit();
 
   if (sdInit() == true)
   {

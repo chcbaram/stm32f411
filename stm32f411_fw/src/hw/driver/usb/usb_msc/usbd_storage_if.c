@@ -203,6 +203,10 @@ int8_t STORAGE_GetCapacity_FS(uint8_t lun, uint32_t *block_num, uint16_t *block_
     *block_size = info.log_block_size;
     ret = 0;
   }
+  else
+  {
+    ret = -1;
+  }
   return ret;
 }
 
@@ -257,6 +261,10 @@ int8_t STORAGE_Read_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t bl
     {
       ret = 0;
     }
+    else
+    {
+      ret = -1;
+    }
   }
   return ret;
 }
@@ -275,6 +283,10 @@ int8_t STORAGE_Write_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t b
     if (sdWriteBlocks(blk_addr, buf, blk_len, 1000) == true)
     {
       ret = 0;
+    }
+    else
+    {
+      ret = -1;
     }
   }
   return ret;

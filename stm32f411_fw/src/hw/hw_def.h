@@ -19,6 +19,7 @@
 #define _USE_HW_FATFS
 #define _USE_HW_FLASH
 #define _USE_HW_MCP2515
+#define _USE_HW_FILES
 
 
 #define _USE_HW_LED
@@ -37,7 +38,7 @@
 #define      HW_BUTTON_MAX_CH       1
 
 #define _USE_HW_GPIO
-#define      HW_GPIO_MAX_CH         6
+#define      HW_GPIO_MAX_CH         7
 
 #define _USE_HW_CDC
 #define _USE_HW_USB
@@ -48,7 +49,7 @@
 #define      HW_SPI_MAX_CH          2
 
 #define _USE_HW_LCD
-#if 0
+#if 1
 #define _USE_HW_ST7735
 #define      HW_LCD_WIDTH           160
 #define      HW_LCD_HEIGHT          80
@@ -62,9 +63,12 @@
 #define _USE_HW_I2C
 #define      HW_I2C_MAX_CH          1
 
+#define _USE_HW_I2S
+#define      HW_I2S_MAX_CH          1
+
 
 #define _PIN_GPIO_SDCARD_DETECT     0
-
+#define _PIN_GPIO_SPK_EN            6
 
 
 #endif /* SRC_HW_HW_DEF_H_ */

@@ -27,6 +27,8 @@
 #include "lcd.h"
 #include "mcp2515.h"
 #include "i2c.h"
+#include "i2s.h"
+#include "files.h"
 
 
 void hwInit(void);

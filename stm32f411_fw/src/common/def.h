@@ -42,6 +42,11 @@
 #define _DEF_I2C3             2
 #define _DEF_I2C4             3
 
+#define _DEF_I2S1             0
+#define _DEF_I2S2             1
+#define _DEF_I2S3             2
+#define _DEF_I2S4             3
+
 #define _DEF_LOW              0
 #define _DEF_HIGH             1
 

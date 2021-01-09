@@ -278,14 +278,14 @@ void HAL_SD_MspInit(SD_HandleTypeDef* sdHandle)
     GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_8|GPIO_PIN_9;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
     GPIO_InitStruct.Alternate = GPIO_AF12_SDIO;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     GPIO_InitStruct.Pin = GPIO_PIN_15|GPIO_PIN_5|GPIO_PIN_7;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
     GPIO_InitStruct.Alternate = GPIO_AF12_SDIO;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
@@ -333,16 +333,16 @@ void HAL_SD_MspInit(SD_HandleTypeDef* sdHandle)
     __HAL_LINKDMA(sdHandle,hdmatx,hdma_sdio_tx);
 
     /* SDIO interrupt Init */
-    HAL_NVIC_SetPriority(SDIO_IRQn, 5, 0);
+    HAL_NVIC_SetPriority(SDIO_IRQn, 4, 0);
     HAL_NVIC_EnableIRQ(SDIO_IRQn);
   /* USER CODE BEGIN SDIO_MspInit 1 */
 
     /* DMA interrupt init */
     /* DMA2_Stream3_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(DMA2_Stream3_IRQn, 5, 0);
+    HAL_NVIC_SetPriority(DMA2_Stream3_IRQn, 3, 0);
     HAL_NVIC_EnableIRQ(DMA2_Stream3_IRQn);
     /* DMA2_Stream6_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(DMA2_Stream6_IRQn, 5, 0);
+    HAL_NVIC_SetPriority(DMA2_Stream6_IRQn, 3, 0);
     HAL_NVIC_EnableIRQ(DMA2_Stream6_IRQn);
 
   /* USER CODE END SDIO_MspInit 1 */
