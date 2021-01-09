@@ -98,6 +98,34 @@ bool i2sInit(void)
   return ret;
 }
 
+bool i2sSetSampleRate(uint8_t ch, uint32_t freq)
+{
+  bool ret = true;
+
+
+  i2s_sample_rate = freq;
+
+  q_buf_len = (i2s_sample_rate * 1) / (1000/I2S_BUF_MS);
+  q_in  = 0;
+  q_out = 0;
+  q_len = I2S_BUF_LEN / q_buf_len;
+
+  gpioPinWrite(_PIN_GPIO_SPK_EN, false);
+
+  hi2s5.Init.AudioFreq = freq;
+  if (HAL_I2S_Init(&hi2s5) != HAL_OK)
+  {
+    ret = false;
+  }
+
+  i2sStart();
+  i2sStop();
+
+  delay(10);
+  gpioPinWrite(_PIN_GPIO_SPK_EN, true);
+
+  return ret;
+}
 
 bool i2sStart(void)
 {
@@ -263,6 +291,32 @@ typedef struct wavfile_header_s
   int32_t Subchunk2Size;
 } wavfile_header_t;
 
+#include "mp3/mp3dec.h"
+
+
+#define READBUF_SIZE  1940
+
+uint8_t read_buf [READBUF_SIZE*2];
+uint8_t *read_ptr;
+int16_t out_buf  [2 * 1152];
+int     bytes_left;
+
+
+static int fillReadBuffer(uint8_t *read_buf, uint8_t *read_ptr, int buf_size, int bytes_left, FILE *infile)
+{
+  int nRead;
+
+  /* move last, small chunk from end of buffer to start, then fill with new data */
+  memmove(read_buf, read_ptr, bytes_left);
+  nRead = fread( read_buf + bytes_left, 1, buf_size - bytes_left, infile);
+  /* zero-pad to avoid finding false sync word after last frame (from old data in readBuf) */
+  if (nRead < buf_size - bytes_left)
+  {
+    memset(read_buf + bytes_left + nRead, 0, buf_size - bytes_left - nRead);
+  }
+  return nRead;
+}
+
 
 void cliI2S(cli_args_t *args)
 {
@@ -278,6 +332,7 @@ void cliI2S(cli_args_t *args)
     cliPrintf("q_out    : %d\n", q_out);
     cliPrintf("q_buf_len: %d\n", q_buf_len);
     cliPrintf("q_len    : %d\n", q_len);
+    cliPrintf("time     : %d ms\n", q_len * 10);
 
     ret = true;
   }
@@ -322,6 +377,8 @@ void cliI2S(cli_args_t *args)
     lcdPrintf(20,18*1+10*1, white, "%d Khz", header.SampleRate/1000);
     lcdPrintf(20,18*1+10*2, white, "%d ch", header.NumChannels);
     lcdRequestDraw();
+
+    i2sSetSampleRate(_DEF_I2S1, header.SampleRate);
 
     i2sStart();
 
@@ -380,9 +437,163 @@ void cliI2S(cli_args_t *args)
     ret = true;
   }
 
+  if (args->argc == 2 && args->isStr(0, "play_mp3") == true)
+  {
+    HMP3Decoder h_dec;
+    char *file_name;
+
+    file_name = args->getStr(1);
+
+
+    h_dec = MP3InitDecoder();
+
+    if (h_dec != 0)
+    {
+      MP3FrameInfo frameInfo;
+      FILE *fp;
+
+      cliPrintf("init ok\n");
+
+
+      fp = fopen(file_name, "r");
+
+      if( fp == NULL )
+      {
+        cliPrintf( "File is null\n" );
+        return;
+      }
+      else
+      {
+        cliPrintf( "File is not null\n" );
+      }
+
+      //int offset;
+      int err;
+      int n_read;
+
+      //fread( buf, 4096, 1, fp );
+
+      bytes_left = 0;
+      read_ptr = read_buf;
+
+      n_read = fillReadBuffer(read_buf, read_ptr, READBUF_SIZE, bytes_left, fp);
+      bytes_left += n_read;
+      read_ptr = read_buf;
+
+      n_read = MP3FindSyncWord(read_ptr, READBUF_SIZE);
+      cliPrintf("Offset: %d\n", n_read);
+
+      bytes_left -= n_read;
+      read_ptr += n_read;
+
+      n_read = fillReadBuffer(read_buf, read_ptr, READBUF_SIZE, bytes_left, fp);
+      bytes_left += n_read;
+      read_ptr = read_buf;
+
+
+      err = MP3GetNextFrameInfo(h_dec, &frameInfo, read_ptr);
+      if (err != ERR_MP3_INVALID_FRAMEHEADER)
+      {
+        cliPrintf("samplerate     %d\n", frameInfo.samprate);
+        cliPrintf("bitrate        %d\n", frameInfo.bitrate);
+        cliPrintf("nChans         %d\n", frameInfo.nChans);
+        cliPrintf("outputSamps    %d\n", frameInfo.outputSamps);
+        cliPrintf("bitsPerSample  %d\n", frameInfo.bitsPerSample);
+
+        i2sSetSampleRate(_DEF_I2S1, frameInfo.samprate);
+
+        q_buf_len = frameInfo.outputSamps / frameInfo.nChans;
+        q_in  = 0;
+        q_out = 0;
+        q_len = I2S_BUF_LEN / q_buf_len;
+
+        i2sStart();
+      }
+
+      while(cliKeepLoop())
+      {
+        if (bytes_left < READBUF_SIZE)
+        {
+          n_read = fillReadBuffer(read_buf, read_ptr, READBUF_SIZE, bytes_left, fp);
+          if (n_read == 0 )
+          {
+            break;
+          }
+          bytes_left += n_read;
+          read_ptr = read_buf;
+        }
+
+
+        n_read = MP3FindSyncWord(read_ptr, bytes_left);
+        if (n_read >= 0)
+        {
+          read_ptr += n_read;
+          bytes_left -= n_read;
+
+
+          //fill the inactive outbuffer
+          err = MP3Decode(h_dec, &read_ptr, (int*) &bytes_left, out_buf, 0);
+
+          if (err)
+          {
+            // sometimes we have a bad frame, lets just nudge forward one byte
+            if (err == ERR_MP3_INVALID_FRAMEHEADER)
+            {
+              read_ptr   += 1;
+              bytes_left -= 1;
+            }
+          }
+          else
+          {
+
+            uint32_t pre_time;
+            uint32_t valid_len;
+
+            pre_time = millis();
+            while(1)
+            {
+              valid_len = (q_len - 1) - ((q_len + q_in - q_out) % q_len);
+
+              if (valid_len > 0)
+              {
+                break;
+              }
+              if (millis()-pre_time >= 100)
+              {
+                break;
+              }
+            }
+
+
+            uint32_t q_offset;
+
+            q_offset   = q_in*q_buf_len;
+
+            for (int j=0; j<q_buf_len; j++)
+            {
+              q_buf[q_offset + j].left  = out_buf[j*2 + 0];
+              q_buf[q_offset + j].right = out_buf[j*2 + 1];
+            }
+            if (((q_in + 1) % q_len) != q_out)
+            {
+              q_in = (q_in+1) % q_len;
+            }
+          }
+        }
+      }
+      i2sStop();
+      fclose(fp);
+      ret = true;
+    }
+  }
+
+
+
   if (ret != true)
   {
     cliPrintf("i2s info\n");
+    cliPrintf("i2s play_wav filename\n");
+    cliPrintf("i2s play_mp3 filename\n");
   }
 }
 #endif
