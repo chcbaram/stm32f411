@@ -294,12 +294,30 @@ typedef struct wavfile_header_s
 #include "mp3/mp3dec.h"
 
 
+
+#define BLOCK_X_CNT     9
+#define BLOCK_Y_CNT     12
+
+
 #define READBUF_SIZE  1940
 
-uint8_t read_buf [READBUF_SIZE*2];
-uint8_t *read_ptr;
-int16_t out_buf  [2 * 1152];
-int     bytes_left;
+typedef struct
+{
+  uint8_t read_buf [READBUF_SIZE*2];
+  uint8_t *read_ptr;
+  int16_t out_buf  [2 * 1152];
+  int     bytes_left;
+
+  uint32_t pre_time_lcd;
+  uint8_t  update_cnt;
+  q15_t    buf_q15[512*2];
+
+  uint8_t block_target[BLOCK_X_CNT];
+  uint8_t block_peak[BLOCK_X_CNT];
+  uint8_t block_value[BLOCK_X_CNT];
+
+} i2s_cli_t;
+
 
 
 static int fillReadBuffer(uint8_t *read_buf, uint8_t *read_ptr, int buf_size, int bytes_left, FILE *infile)
@@ -317,10 +335,126 @@ static int fillReadBuffer(uint8_t *read_buf, uint8_t *read_ptr, int buf_size, in
   return nRead;
 }
 
+static void drawBlock(int16_t bx, int16_t by, uint16_t color)
+{
+  int16_t x;
+  int16_t y;
+  int16_t bw;
+  int16_t bh;
+
+  bw = (lcdGetWidth() / BLOCK_X_CNT);
+  bh = (lcdGetHeight() / BLOCK_Y_CNT);
+
+  x = bx*bw;
+  y = lcdGetHeight() - bh*by - bh;
+
+  lcdDrawFillRect(x, y, bw-2, bh-2, color);
+}
+
+static void lcdUpdate(i2s_cli_t *p_args)
+{
+  if (millis()-p_args->pre_time_lcd >= 50 && lcdDrawAvailable() == true)
+  {
+    p_args->pre_time_lcd = millis();
+
+    lcdClearBuffer(black);
+
+
+    for (int i=0; i<512; i++)
+    {
+      p_args->buf_q15[2*i  ] = p_args->out_buf[i*2];
+      p_args->buf_q15[2*i+1] = 0;
+    }
+
+    arm_cfft_q15(&arm_cfft_sR_q15_len512, p_args->buf_q15, 0, 1);
+
+    int16_t xi;
+
+    xi = 0;
+    for (int i=0; i<BLOCK_X_CNT; i++)
+    {
+      int16_t h;
+      int16_t max_h;
+
+      max_h = 0;
+      for (int j=0; j<lcdGetWidth()/BLOCK_X_CNT/2; j++)
+      {
+        h = p_args->buf_q15[2*xi + 1];
+        h = constrain(h, 0, 500);
+        h = map(h, 0, 500, 0, 80);
+        if (h > max_h)
+        {
+          max_h = h;
+        }
+        xi++;
+      }
+      h = map(max_h, 0, 80, 0, BLOCK_Y_CNT-1);
+
+      p_args->block_target[i] = h;
+
+      if (p_args->update_cnt%2 == 0)
+      {
+        if (p_args->block_peak[i] > 0)
+        {
+          p_args->block_peak[i]--;
+        }
+      }
+      if (h >= p_args->block_peak[i])
+      {
+        p_args->block_peak[i] = h;
+        p_args->block_value[i] = h;
+      }
+    }
+
+    p_args->update_cnt++;
+
+    for (int i=0; i<BLOCK_X_CNT; i++)
+    {
+      drawBlock(i, p_args->block_peak[i], red);
+
+      if (p_args->block_value[i] > p_args->block_target[i])
+      {
+        p_args->block_value[i]--;
+      }
+      for (int j=0; j<p_args->block_value[i]; j++)
+      {
+        drawBlock(i, j, yellow);
+      }
+    }
+
+#if 0
+    int16_t xi;
+
+    xi = 0;
+
+    for (int i=0; i<lcdGetWidth(); i+=2)
+    {
+      int16_t h;
+
+      h = p_args->buf_q15[4*xi + 1];
+      h = constrain(h, 0, 500);
+      h = map(h, 0, 500, 0, 80);
+
+      lcdDrawLine(i, lcdGetHeight()-1, i, lcdGetHeight() - h - 1, white);
+
+      xi++;
+    }
+#endif
+
+
+    lcdRequestDraw();
+  }
+}
 
 void cliI2S(cli_args_t *args)
 {
   bool ret = false;
+  i2s_cli_t i2s_args;
+
+
+  memset(i2s_args.block_peak, 0, sizeof(i2s_args.block_peak));
+  memset(i2s_args.block_value, 0, sizeof(i2s_args.block_value));
+  memset(i2s_args.block_target, 0, sizeof(i2s_args.block_target));
 
 
   if (args->argc == 1 && args->isStr(0, "info") == true)
@@ -473,25 +607,25 @@ void cliI2S(cli_args_t *args)
 
       //fread( buf, 4096, 1, fp );
 
-      bytes_left = 0;
-      read_ptr = read_buf;
+      i2s_args.bytes_left = 0;
+      i2s_args.read_ptr = i2s_args.read_buf;
 
-      n_read = fillReadBuffer(read_buf, read_ptr, READBUF_SIZE, bytes_left, fp);
-      bytes_left += n_read;
-      read_ptr = read_buf;
+      n_read = fillReadBuffer(i2s_args.read_buf, i2s_args.read_ptr, READBUF_SIZE, i2s_args.bytes_left, fp);
+      i2s_args.bytes_left += n_read;
+      i2s_args.read_ptr = i2s_args.read_buf;
 
-      n_read = MP3FindSyncWord(read_ptr, READBUF_SIZE);
+      n_read = MP3FindSyncWord(i2s_args.read_ptr, READBUF_SIZE);
       cliPrintf("Offset: %d\n", n_read);
 
-      bytes_left -= n_read;
-      read_ptr += n_read;
+      i2s_args.bytes_left -= n_read;
+      i2s_args.read_ptr += n_read;
 
-      n_read = fillReadBuffer(read_buf, read_ptr, READBUF_SIZE, bytes_left, fp);
-      bytes_left += n_read;
-      read_ptr = read_buf;
+      n_read = fillReadBuffer(i2s_args.read_buf, i2s_args.read_ptr, READBUF_SIZE, i2s_args.bytes_left, fp);
+      i2s_args.bytes_left += n_read;
+      i2s_args.read_ptr = i2s_args.read_buf;
 
 
-      err = MP3GetNextFrameInfo(h_dec, &frameInfo, read_ptr);
+      err = MP3GetNextFrameInfo(h_dec, &frameInfo, i2s_args.read_ptr);
       if (err != ERR_MP3_INVALID_FRAMEHEADER)
       {
         cliPrintf("samplerate     %d\n", frameInfo.samprate);
@@ -512,35 +646,35 @@ void cliI2S(cli_args_t *args)
 
       while(cliKeepLoop())
       {
-        if (bytes_left < READBUF_SIZE)
+        if (i2s_args.bytes_left < READBUF_SIZE)
         {
-          n_read = fillReadBuffer(read_buf, read_ptr, READBUF_SIZE, bytes_left, fp);
+          n_read = fillReadBuffer(i2s_args.read_buf, i2s_args.read_ptr, READBUF_SIZE, i2s_args.bytes_left, fp);
           if (n_read == 0 )
           {
             break;
           }
-          bytes_left += n_read;
-          read_ptr = read_buf;
+          i2s_args.bytes_left += n_read;
+          i2s_args.read_ptr = i2s_args.read_buf;
         }
 
 
-        n_read = MP3FindSyncWord(read_ptr, bytes_left);
+        n_read = MP3FindSyncWord(i2s_args.read_ptr, i2s_args.bytes_left);
         if (n_read >= 0)
         {
-          read_ptr += n_read;
-          bytes_left -= n_read;
+          i2s_args.read_ptr += n_read;
+          i2s_args.bytes_left -= n_read;
 
 
           //fill the inactive outbuffer
-          err = MP3Decode(h_dec, &read_ptr, (int*) &bytes_left, out_buf, 0);
+          err = MP3Decode(h_dec, &i2s_args.read_ptr, (int*) &i2s_args.bytes_left, i2s_args.out_buf, 0);
 
           if (err)
           {
             // sometimes we have a bad frame, lets just nudge forward one byte
             if (err == ERR_MP3_INVALID_FRAMEHEADER)
             {
-              read_ptr   += 1;
-              bytes_left -= 1;
+              i2s_args.read_ptr   += 1;
+              i2s_args.bytes_left -= 1;
             }
           }
           else
@@ -571,13 +705,15 @@ void cliI2S(cli_args_t *args)
 
             for (int j=0; j<q_buf_len; j++)
             {
-              q_buf[q_offset + j].left  = out_buf[j*2 + 0];
-              q_buf[q_offset + j].right = out_buf[j*2 + 1];
+              q_buf[q_offset + j].left  = i2s_args.out_buf[j*2 + 0];
+              q_buf[q_offset + j].right = i2s_args.out_buf[j*2 + 1];
             }
             if (((q_in + 1) % q_len) != q_out)
             {
               q_in = (q_in+1) % q_len;
             }
+
+            lcdUpdate(&i2s_args);
           }
         }
       }
