@@ -217,6 +217,11 @@ uint8_t cliRead(void)
   return uartRead(cli_node.ch);
 }
 
+uint32_t cliWrite(uint8_t *p_data, uint32_t length)
+{
+  return uartWrite(cli_node.ch, p_data, length);
+}
+
 bool cliUpdate(cli_t *p_cli, uint8_t rx_data)
 {
   bool ret = false;
