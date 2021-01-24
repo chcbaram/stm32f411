@@ -16,6 +16,8 @@
 
 
 #define _USE_HW_FLASH
+#define _USE_HW_YMODEM
+
 
 
 #define _USE_HW_LED
@@ -37,6 +39,13 @@
 #define _USE_HW_USB
 #define      HW_USE_CDC             1
 #define      HW_USE_MSC             0
+
+
+
+#define FLASH_ADDR_FW               0x8010000
+
+#define FLASH_ADDR_START            0x8010000
+#define FLASH_ADDR_END              (FLASH_ADDR_START + (512-64)*1024)
 
 
 
