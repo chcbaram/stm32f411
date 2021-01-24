@@ -119,6 +119,13 @@ void cliBoot(cli_args_t *args)
   bool ret = false;
 
 
+  if (args->argc == 1 && args->isStr(0, "info"))
+  {
+    cliPrintf("Flash Start : 0x%X\n", FLASH_ADDR_FW);
+    cliPrintf("Flash End   : 0x%X\n", FLASH_ADDR_END);
+    ret = true;
+  }
+
   if (args->argc == 1 && args->isStr(0, "down_fw"))
   {
     bootDownload();
@@ -128,6 +135,7 @@ void cliBoot(cli_args_t *args)
 
   if (ret != true)
   {
+    cliPrintf("boot info\n");
     cliPrintf("boot down_fw\n");
   }
 }
