@@ -42,6 +42,12 @@ enum
   YMODEM_PACKET_WAIT_CRCL,
 };
 
+enum
+{
+  YMODEM_RESP_NONE,
+  YMODEM_RESP_ACK,
+  YMODEM_RESP_ACK_C,
+};
 
 
 #ifdef _USE_HW_CLI
@@ -77,6 +83,7 @@ bool ymodemOpen(ymodem_t *p_modem, uint8_t ch)
   p_modem->file_buf_length = 0;
   p_modem->pre_time        = millis();
   p_modem->start_time      = 3000;
+  p_modem->ack_mode        = 0;
 
   p_modem->rx_packet.data = &p_modem->rx_packet.buffer[3];
 
@@ -129,23 +136,19 @@ bool ymodemGetFileInfo(ymodem_t *p_modem)
 
 bool ymodemAck(ymodem_t *p_modem)
 {
-
-  if (p_modem->state == YMODEM_STATE_WAIT_FIRST)
+  if (p_modem->ack_mode == YMODEM_RESP_ACK_C)
   {
-    if (p_modem->type == YMODEM_TYPE_START)
-    {
-      ymodemPutch(p_modem, YMODEM_ACK);
-      ymodemPutch(p_modem, YMODEM_C);
-    }
+    ymodemPutch(p_modem, YMODEM_ACK);
+    ymodemPutch(p_modem, YMODEM_C);
   }
 
-  if (p_modem->state == YMODEM_STATE_WAIT_DATA)
+  if (p_modem->ack_mode == YMODEM_RESP_ACK)
   {
-    if (p_modem->type == YMODEM_TYPE_DATA)
-    {
-      ymodemPutch(p_modem, YMODEM_ACK);
-    }
+    ymodemPutch(p_modem, YMODEM_ACK);
   }
+
+  p_modem->ack_mode = YMODEM_RESP_NONE;
+
   return true;
 }
 
@@ -197,6 +200,7 @@ bool ymodemReceive(ymodem_t *p_modem)
 
           //ymodemPutch(p_modem, YMODEM_ACK);
           //ymodemPutch(p_modem, YMODEM_C);
+          p_modem->ack_mode = YMODEM_RESP_ACK_C;
 
           p_modem->state = YMODEM_STATE_WAIT_FIRST;
           p_modem->type = YMODEM_TYPE_START;
@@ -223,11 +227,10 @@ bool ymodemReceive(ymodem_t *p_modem)
           p_modem->file_buf_length = buf_length;
           p_modem->file_received += buf_length;
 
-          //ymodemPutch(p_modem, YMODEM_ACK);
+          ymodemPutch(p_modem, YMODEM_ACK);
 
           p_modem->state = YMODEM_STATE_WAIT_DATA;
           p_modem->type = YMODEM_TYPE_DATA;
-          ret = true;
         }
         break;
 
@@ -249,6 +252,7 @@ bool ymodemReceive(ymodem_t *p_modem)
           p_modem->file_received += buf_length;
 
           //ymodemPutch(p_modem, YMODEM_ACK);
+          p_modem->ack_mode = YMODEM_RESP_ACK;
           p_modem->type = YMODEM_TYPE_DATA;
           ret = true;
         }

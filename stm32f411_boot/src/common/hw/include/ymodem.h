@@ -56,6 +56,7 @@ typedef struct
   uint32_t  start_time;
   uint32_t  index;
   uint8_t   error;
+  uint8_t   ack_mode;
 
   char      file_name[128];
   uint32_t  file_addr;

@@ -94,7 +94,7 @@ bool bootDownload(void)
 
       ymodemAck(&ymodem);
     }
-    if (millis()-pre_time >= 10*1000)
+    if (millis()-pre_time >= 15*1000)
     {
       keep_loop = false;
       err_code = 5;
