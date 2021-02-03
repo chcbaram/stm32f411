@@ -798,6 +798,8 @@ void cliLcd(cli_args_t *args)
 
   if (args->argc == 1 && args->isStr(0, "test") == true)
   {
+    lcdSetFont(LCD_FONT_HAN);
+
     while(cliKeepLoop())
     {
       if (lcdDrawAvailable() == true)
