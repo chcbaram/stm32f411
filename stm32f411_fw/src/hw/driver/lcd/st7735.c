@@ -36,8 +36,13 @@ static const int32_t _height = HW_LCD_HEIGHT;
 static void (*frameCallBack)(void) = NULL;
 volatile static bool  is_write_frame = false;
 
+#if HW_ST7735_MODEL == 0
 const uint32_t colstart = 1;
 const uint32_t rowstart = 26;
+#else
+const uint32_t colstart = 0;
+const uint32_t rowstart = 0;
+#endif
 
 static void writecommand(uint8_t c);
 static void writedata(uint8_t d);
@@ -186,7 +191,11 @@ void st7735InitRegs(void)
   writecommand(ST7735_VMCTR1);  // 12: Power control, 1 arg, no delay:
   writedata(0x0E);
 
+#if HW_ST7735_MODEL == 0
   writecommand(ST7735_INVON);   // 13: Don't invert display, no args, no delay
+#else
+  writecommand(ST7735_INVOFF);  // 13: Don't invert display, no args, no delay
+#endif
 
   writecommand(ST7735_MADCTL);  // 14: Memory access control (directions), 1 arg:
   writedata(0xC8);              //     row addr/col addr, bottom to top refresh
@@ -199,13 +208,13 @@ void st7735InitRegs(void)
   writedata(0x00);
   writedata(0x00);              //     XSTART = 0
   writedata(0x00);
-  writedata(160-1);             //     XEND = 159
+  writedata(HW_LCD_WIDTH-1);    //     XEND = 159
 
   writecommand(ST7735_RASET);   //  2: Row addr set, 4 args, no delay:
   writedata(0x00);
   writedata(0x00);              //     XSTART = 0
   writedata(0x00);
-  writedata(80-1);              //     XEND = 79
+  writedata(HW_LCD_HEIGHT-1);   //     XEND = 79
 
 
   writecommand(ST7735_NORON);   //  3: Normal display on, no args, w/delay

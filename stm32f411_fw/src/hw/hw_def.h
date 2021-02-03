@@ -49,14 +49,24 @@
 #define      HW_SPI_MAX_CH          2
 
 #define _USE_HW_LCD
-#if 1
+#define      HW_LCD_MODEL           0
+#if HW_LCD_MODEL == 0
 #define _USE_HW_ST7735
+#define      HW_ST7735_MODEL        0
 #define      HW_LCD_WIDTH           160
 #define      HW_LCD_HEIGHT          80
-#else
+#endif
+#if HW_LCD_MODEL == 1
 #define _USE_HW_SSD1306
+#define      HW_SSD1306_MODEL       0
 #define      HW_LCD_WIDTH           128
 #define      HW_LCD_HEIGHT          64
+#endif
+#if HW_LCD_MODEL == 2
+#define _USE_HW_ST7735
+#define      HW_ST7735_MODEL        1
+#define      HW_LCD_WIDTH           160
+#define      HW_LCD_HEIGHT          128
 #endif
 
 
