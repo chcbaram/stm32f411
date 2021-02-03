@@ -30,6 +30,8 @@
 #include "i2s.h"
 #include "files.h"
 #include "ymodem.h"
+#include "cmd.h"
+
 
 
 void hwInit(void);

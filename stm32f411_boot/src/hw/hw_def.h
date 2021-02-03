@@ -40,6 +40,9 @@
 #define      HW_USE_CDC             1
 #define      HW_USE_MSC             0
 
+#define _USE_HW_CMD
+#define      HW_CMD_MAX_DATA_LENGTH (1024+8)
+
 
 
 #define FLASH_ADDR_FW               0x8010000
