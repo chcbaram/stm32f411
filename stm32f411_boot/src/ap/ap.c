@@ -7,6 +7,7 @@
 
 
 #include "ap.h"
+#include "boot/boot.h"
 
 
 
@@ -37,34 +38,9 @@ void apMain(void)
 
     //cliMain();
 
-
     if (cmdReceivePacket(&cmd) == true)
     {
-      uint8_t err_code = CMD_OK;
-
-      //-- LED 제어 명령
-      //
-      if (cmd.rx_packet.cmd == 0x10)
-      {
-        if (cmd.rx_packet.data[0] == 0)
-        {
-          ledOff(_DEF_LED1);
-        }
-        else if (cmd.rx_packet.data[0] == 1)
-        {
-          ledOn(_DEF_LED1);
-        }
-        else if (cmd.rx_packet.data[0] == 2)
-        {
-          ledToggle(_DEF_LED1);
-        }
-        else
-        {
-          err_code = 0x01;
-        }
-
-        cmdSendResp(&cmd, 0x10, err_code, NULL, 0);
-      }
+      bootProcessCmd(&cmd);
     }
   }
 }
