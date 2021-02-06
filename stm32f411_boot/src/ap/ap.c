@@ -30,10 +30,10 @@ void apMain(void)
   pre_time = millis();
   while(1)
   {
-    if (millis()-pre_time >= 500)
+    if (millis()-pre_time >= 100)
     {
       pre_time = millis();
-      //ledToggle(_DEF_LED1);
+      ledToggle(_DEF_LED1);
     }
 
     //cliMain();
