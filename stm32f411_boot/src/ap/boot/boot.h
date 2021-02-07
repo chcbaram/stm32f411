@@ -13,8 +13,10 @@
 
 
 
-#define BOOT_ERR_WRONG_CMD    0x01
-#define BOOT_ERR_LED          0x02
+#define BOOT_ERR_WRONG_CMD      0x01
+#define BOOT_ERR_LED            0x02
+#define BOOT_ERR_FLASH_ERASE    0x03
+#define BOOT_ERR_WRONG_RANGE    0x04
 
 
 
