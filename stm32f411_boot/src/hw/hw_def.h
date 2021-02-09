@@ -41,7 +41,7 @@
 #define      HW_USE_MSC             0
 
 #define _USE_HW_CMD
-#define      HW_CMD_MAX_DATA_LENGTH (1024+8)
+#define      HW_CMD_MAX_DATA_LENGTH (1024)
 
 
 

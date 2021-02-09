@@ -32,7 +32,7 @@ typedef struct
   uint16_t  length;
   uint8_t   check_sum;
   uint8_t   check_sum_recv;
-  uint8_t   buffer[CMD_MAX_DATA_LENGTH];
+  uint8_t   buffer[CMD_MAX_DATA_LENGTH+8];
   uint8_t   *data;
 } cmd_packet_t;
 
