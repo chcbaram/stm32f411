@@ -16,6 +16,17 @@ cmd_t cmd;
 
 void apInit(void)
 {
+  if (buttonGetPressed(_DEF_BUTTON1) == false)
+  {
+    if (bootVerifyFw() == true)
+    {
+      bootJumpToFw();
+    }
+  }
+
+  usbBegin(USB_CDC_MODE);
+
+
   cliOpen(_DEF_UART1, 57600);
 
   cmdInit(&cmd);

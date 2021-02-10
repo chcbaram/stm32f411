@@ -23,6 +23,4 @@ void hwInit(void)
   buttonInit();
   flashInit();
   ymodemInit();
-
-  usbBegin(USB_CDC_MODE);
 }

@@ -97,6 +97,11 @@ bool uartOpen(uint8_t ch, uint32_t baud)
   return ret;
 }
 
+bool uartClose(uint8_t ch)
+{
+  return true;
+}
+
 uint32_t uartAvailable(uint8_t ch)
 {
   uint32_t ret = 0;

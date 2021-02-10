@@ -15,6 +15,7 @@
 #define BOOT_CMD_READ_FIRM_NAME         0x03
 #define BOOT_CMD_FLASH_ERASE            0x04
 #define BOOT_CMD_FLASH_WRITE            0x05
+#define BOOT_CMD_JUMP_TO_FW             0x08
 #define BOOT_CMD_LED_CONTROL            0x10
 
 
@@ -33,7 +34,9 @@ static void bootCmdReadFirmVersion(cmd_t *p_cmd);
 static void bootCmdReadFirmName(cmd_t *p_cmd);
 static void bootCmdFlashErase(cmd_t *p_cmd);
 static void bootCmdFlashWrite(cmd_t *p_cmd);
+static void bootCmdJumpToFw(cmd_t *p_cmd);
 static void bootCmdLedControl(cmd_t *p_cmd);
+
 
 static bool bootIsFlashRange(uint32_t addr_begin, uint32_t length);
 
@@ -43,6 +46,29 @@ static bool bootIsFlashRange(uint32_t addr_begin, uint32_t length);
 void bootInit(void)
 {
 
+}
+
+bool bootVerifyFw(void)
+{
+  uint32_t *jump_addr = (uint32_t *)(FLASH_ADDR_FW + 4);
+
+
+  if ((*jump_addr) >= FLASH_ADDR_START && (*jump_addr) <  FLASH_ADDR_END)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+void bootJumpToFw(void)
+{
+  void (**jump_func)(void) = (void (**)(void))(FLASH_ADDR_FW + 4);
+
+  bspDeInit();
+  (*jump_func)();
 }
 
 void bootProcessCmd(cmd_t *p_cmd)
@@ -75,6 +101,10 @@ void bootProcessCmd(cmd_t *p_cmd)
 
     case BOOT_CMD_FLASH_WRITE:
       bootCmdFlashWrite(p_cmd);
+      break;
+
+    case BOOT_CMD_JUMP_TO_FW:
+      bootCmdJumpToFw(p_cmd);
       break;
 
     default:
@@ -179,6 +209,19 @@ void bootCmdFlashWrite(cmd_t *p_cmd)
   cmdSendResp(p_cmd, BOOT_CMD_FLASH_WRITE, err_code, NULL, 0);
 }
 
+void bootCmdJumpToFw(cmd_t *p_cmd)
+{
+  if (bootVerifyFw() == true)
+  {
+    cmdSendResp(p_cmd, BOOT_CMD_JUMP_TO_FW, CMD_OK, NULL, 0);
+    delay(100);
+    bootJumpToFw();
+  }
+  else
+  {
+    cmdSendResp(p_cmd, BOOT_CMD_JUMP_TO_FW, BOOT_ERR_INVALID_FW, NULL, 0);
+  }
+}
 
 void bootCmdLedControl(cmd_t *p_cmd)
 {
