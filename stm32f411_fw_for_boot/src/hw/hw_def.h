@@ -20,6 +20,8 @@
 #define _USE_HW_FLASH
 #define _USE_HW_MCP2515
 #define _USE_HW_FILES
+#define _USE_HW_RTC
+#define _USE_HW_RESET
 
 
 #define _USE_HW_LED
@@ -79,6 +81,11 @@
 
 #define _PIN_GPIO_SDCARD_DETECT     0
 #define _PIN_GPIO_SPK_EN            6
+
+
+#define FLASH_ADDR_BOOT_VER         0x8000400
+
+
 
 
 #endif /* SRC_HW_HW_DEF_H_ */

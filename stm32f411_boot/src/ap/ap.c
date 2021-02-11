@@ -16,13 +16,36 @@ cmd_t cmd;
 
 void apInit(void)
 {
-  if (buttonGetPressed(_DEF_BUTTON1) == false)
+  bool run_boot = false;
+  uint8_t reg;
+
+  reg = rtcBackupRegRead(0);
+
+  if (reg & (1<<0))
   {
-    if (bootVerifyFw() == true)
+    run_boot = true;
+    reg &= ~(1<<0);
+    rtcBackupRegWrite(0, reg);
+  }
+
+
+  if (resetGetCount() == 2)
+  {
+    run_boot = true;
+  }
+
+
+  if (run_boot == false)
+  {
+    if (buttonGetPressed(_DEF_BUTTON1) == false)
     {
-      bootJumpToFw();
+      if (bootVerifyFw() == true)
+      {
+        bootJumpToFw();
+      }
     }
   }
+
 
   usbBegin(USB_CDC_MODE);
 

@@ -20,7 +20,7 @@ bool resetInit(void)
 {
   bool ret = true;
 
-#if 0
+#if 1
   // 만약 Reset 핀이 눌렸다면
   //
   if (RCC->CSR & (1<<26))

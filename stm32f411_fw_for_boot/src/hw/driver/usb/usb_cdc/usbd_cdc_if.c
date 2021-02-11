@@ -24,6 +24,8 @@
 
 /* USER CODE BEGIN INCLUDE */
 #include "cdc.h"
+#include "reset.h"
+
 USBD_CDC_LineCodingTypeDef LineCoding =
     {
         115200,
@@ -32,12 +34,16 @@ USBD_CDC_LineCodingTypeDef LineCoding =
         0x08
     };
 
+const char *JUMP_BOOT_STR = "BOOT 5555AAAA";
+
 
 uint32_t rx_in  = 0;
 uint32_t rx_out = 0;
 uint32_t rx_len = 1024;
 uint8_t  rx_buf[1024];
 bool     rx_full = false;
+
+uint8_t reset_ready = 0;
 
 
 uint32_t cdcAvailable(void)
@@ -339,6 +345,11 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
       LineCoding.format    = pbuf[4];
       LineCoding.paritytype= pbuf[5];
       LineCoding.datatype  = pbuf[6];
+
+      if (LineCoding.bitrate == 1200)
+      {
+        reset_ready = 1;
+      }
     break;
 
     case CDC_GET_LINE_CODING:
@@ -389,6 +400,31 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   {
     cdcDataIn(Buf[i]);
   }
+
+
+  if (reset_ready == 1)
+  {
+    int i;
+
+    reset_ready = 0;
+
+    if (*Len >= 13)
+    {
+      for (i=0; i<13; i++)
+      {
+        if (JUMP_BOOT_STR[i] != Buf[i])
+        {
+          break;
+        }
+      }
+      if (i == 13)
+      {
+        // Run Bootloader
+        resetToBoot(100);
+      }
+    }
+  }
+
 
   uint32_t buf_len;
 

@@ -10,12 +10,19 @@
 
 
 
+__attribute__((section(".version"))) firm_version_t firm_ver =
+    {
+        "V210211R2",
+        "Firmware"
+    };
 
 
 void hwInit(void)
 {
   bspInit();
 
+  rtcInit();
+  resetInit();
   cliInit();
   ledInit();
   usbInit();

@@ -51,6 +51,14 @@ SECTIONS
     . = ALIGN(4);
   } >FLASH
 
+  .version :
+  {
+    . = ALIGN(1024);
+    KEEP(*(.version)) 
+    . = ALIGN(4);
+  } >FLASH
+  
+  
   /* The program code and other data into "FLASH" Rom type memory */
   .text :
   {

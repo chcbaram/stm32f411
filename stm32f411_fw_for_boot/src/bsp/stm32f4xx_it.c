@@ -52,6 +52,7 @@
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+extern void resetISR(void);
 
 /* USER CODE END 0 */
 
@@ -188,6 +189,7 @@ void PendSV_Handler(void)
 /**
   * @brief This function handles System tick timer.
   */
+
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
@@ -195,7 +197,7 @@ void SysTick_Handler(void)
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
-
+  resetISR();
   /* USER CODE END SysTick_IRQn 1 */
 }
 

@@ -9,6 +9,11 @@
 #include "hw.h"
 
 
+__attribute__((section(".version"))) firm_version_t boot_ver =
+    {
+        "B210211R1",
+        "Bootloader"
+    };
 
 
 
@@ -16,6 +21,8 @@ void hwInit(void)
 {
   bspInit();
 
+  rtcInit();
+  resetInit();
   cliInit();
   ledInit();
   usbInit();

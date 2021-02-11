@@ -59,8 +59,24 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define LED_Pin GPIO_PIN_13
+#define LED_GPIO_Port GPIOC
+#define LCD_DC_Pin GPIO_PIN_14
+#define LCD_DC_GPIO_Port GPIOC
+#define BUTTON_Pin GPIO_PIN_0
+#define BUTTON_GPIO_Port GPIOA
+#define LCD_BKL_Pin GPIO_PIN_3
+#define LCD_BKL_GPIO_Port GPIOA
+#define MCP2515_INT_Pin GPIO_PIN_2
+#define MCP2515_INT_GPIO_Port GPIOB
 #define SPK_EN_Pin GPIO_PIN_12
 #define SPK_EN_GPIO_Port GPIOB
+#define LCD_CS_Pin GPIO_PIN_14
+#define LCD_CS_GPIO_Port GPIOB
+#define MCP2515_CS_Pin GPIO_PIN_15
+#define MCP2515_CS_GPIO_Port GPIOA
+#define SD_CD_Pin GPIO_PIN_9
+#define SD_CD_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

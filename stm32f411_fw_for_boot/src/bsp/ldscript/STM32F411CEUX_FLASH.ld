@@ -47,7 +47,15 @@ SECTIONS
   .isr_vector :
   {
     . = ALIGN(4);
+    __isr_vector_addr = .;
     KEEP(*(.isr_vector)) /* Startup code */
+    . = ALIGN(4);
+  } >FLASH
+
+  .version :
+  {
+    . = ALIGN(1024);
+    KEEP(*(.version)) 
     . = ALIGN(4);
   } >FLASH
 

@@ -22,10 +22,12 @@
 
 
 
-const uint8_t boot_ver[32]  = "B210206R1";
-const uint8_t boot_name[32] = "STM32F411";
-const uint8_t firm_ver[32]  = "V210206R1";
-const uint8_t firm_name[32] = "STM32F411";
+
+extern firm_version_t boot_ver;
+
+firm_version_t *p_boot_ver = &boot_ver;
+firm_version_t *p_firm_ver = (firm_version_t *)(FLASH_ADDR_FW_VER);
+
 
 
 static void bootCmdReadBootVersion(cmd_t *p_cmd);
@@ -115,22 +117,22 @@ void bootProcessCmd(cmd_t *p_cmd)
 
 void bootCmdReadBootVersion(cmd_t *p_cmd)
 {
-  cmdSendResp(p_cmd, BOOT_CMD_READ_BOOT_VERSION, CMD_OK, (uint8_t *)boot_ver, 32);
+  cmdSendResp(p_cmd, BOOT_CMD_READ_BOOT_VERSION, CMD_OK, (uint8_t *)p_boot_ver->version, 32);
 }
 
 void bootCmdReadBootName(cmd_t *p_cmd)
 {
-  cmdSendResp(p_cmd, BOOT_CMD_READ_BOOT_NAME, CMD_OK, (uint8_t *)boot_name, 32);
+  cmdSendResp(p_cmd, BOOT_CMD_READ_BOOT_NAME, CMD_OK, (uint8_t *)p_boot_ver->name, 32);
 }
 
 void bootCmdReadFirmVersion(cmd_t *p_cmd)
 {
-  cmdSendResp(p_cmd, BOOT_CMD_READ_FIRM_VERSION, CMD_OK, (uint8_t *)firm_ver, 32);
+  cmdSendResp(p_cmd, BOOT_CMD_READ_FIRM_VERSION, CMD_OK, (uint8_t *)p_firm_ver->version, 32);
 }
 
 void bootCmdReadFirmName(cmd_t *p_cmd)
 {
-  cmdSendResp(p_cmd, BOOT_CMD_READ_FIRM_NAME, CMD_OK, (uint8_t *)firm_name, 32);
+  cmdSendResp(p_cmd, BOOT_CMD_READ_FIRM_NAME, CMD_OK, (uint8_t *)p_firm_ver->name, 32);
 }
 
 void bootCmdFlashErase(cmd_t *p_cmd)

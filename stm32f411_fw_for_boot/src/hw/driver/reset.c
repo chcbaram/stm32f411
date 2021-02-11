@@ -13,7 +13,24 @@
 #ifdef _USE_HW_RESET
 
 static uint32_t reset_count = 0;
+static uint32_t run_timeout_count = 0;
 
+static void resetToRunBoot(void);
+
+
+
+void resetISR(void)
+{
+  if (run_timeout_count > 0)
+  {
+    run_timeout_count--;
+
+    if (run_timeout_count == 0)
+    {
+      resetToRunBoot();
+    }
+  }
+}
 
 
 bool resetInit(void)
@@ -41,5 +58,27 @@ uint32_t resetGetCount(void)
   return reset_count;
 }
 
+void resetToBoot(uint32_t timeout)
+{
+  if (timeout == 0)
+  {
+    resetToRunBoot();
+  }
+  else
+  {
+    run_timeout_count = timeout;
+  }
+}
+
+void resetToRunBoot(void)
+{
+  uint32_t reg;
+
+  reg = rtcBackupRegRead(0);
+
+  reg |= (1<<0);
+  rtcBackupRegWrite(0, reg);
+  NVIC_SystemReset();
+}
 
 #endif

@@ -84,5 +84,12 @@
 #endif
 
 
+typedef struct
+{
+  uint8_t version[32];
+  uint8_t name[32];
+} firm_version_t;
+
+
 
 #endif /* SRC_COMMON_DEF_H_ */
