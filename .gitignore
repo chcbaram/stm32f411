@@ -4,3 +4,6 @@ stm32f411_boot/.settings/language.settings.xml
 stm32f411_boot/Debug/
 stm32f411_fw_for_boot/Debug/
 stm32f411_fw_for_boot/.settings/language.settings.xml
+stm32cli/.settings/language.settings.xml
+stm32cli/.settings/org.eclipse.cdt.managedbuilder.core.prefs
+stm32cli/Debug/
