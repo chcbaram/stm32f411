@@ -78,14 +78,10 @@ bool bootVerifyCrc(void)
   p_data = (uint8_t *)p_firm_tag->tag_flash_start;
   fw_crc = 0;
 
-  uint32_t pre_time;
-  uint32_t exe_time;
-  pre_time = millis();
   for (int i=0; i<p_firm_tag->tag_flash_length; i++)
   {
     utilUpdateCrc(&fw_crc, p_data[i]);
   }
-  exe_time = millis()-pre_time;
 
   if (fw_crc == p_firm_tag->tag_flash_crc)
   {
