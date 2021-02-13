@@ -20,6 +20,8 @@
 #define BOOT_ERR_FLASH_WRITE    0x05
 #define BOOT_ERR_BUF_OVF        0x06
 #define BOOT_ERR_INVALID_FW     0x07
+#define BOOT_ERR_FW_CRC         0x08
+
 
 
 
@@ -27,6 +29,7 @@
 void bootInit(void);
 void bootProcessCmd(cmd_t *p_cmd);
 bool bootVerifyFw(void);
+bool bootVerifyCrc(void);
 void bootJumpToFw(void);
 
 

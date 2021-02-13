@@ -37,17 +37,29 @@ _Min_Stack_Size = 0x400;	/* required amount of stack */
 MEMORY
 {
   RAM    (xrw)    : ORIGIN = 0x20000000,   LENGTH = 128K
-  FLASH  (rx)     : ORIGIN = 0x08010000,   LENGTH = 448K
+  
+  TAG    (RX)     : ORIGIN = 0x08010000,   LENGTH = 1K
+  FLASH  (rx)     : ORIGIN = 0x08010400,   LENGTH = 447K
 }
 
 /* Sections */
 SECTIONS
 {
+
+  .tag :
+  {
+    . = ALIGN(4);
+    _flash_tag_addr = .;
+    KEEP(*(.tag)) 
+    . = ALIGN(4);
+  } >TAG	
+
+
   /* The startup code into "FLASH" Rom type memory */
   .isr_vector :
   {
     . = ALIGN(4);
-    __isr_vector_addr = .;
+    __isr_vector_addr = .;    
     KEEP(*(.isr_vector)) /* Startup code */
     . = ALIGN(4);
   } >FLASH
@@ -141,7 +153,7 @@ SECTIONS
 
     . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */
-    
+            
   } >RAM AT> FLASH
 
   /* Uninitialized data section into "RAM" Ram type memory */
@@ -179,5 +191,5 @@ SECTIONS
     libgcc.a ( * )
   }
 
-  .ARM.attributes 0 : { *(.ARM.attributes) }
+  .ARM.attributes 0 : { *(.ARM.attributes) }  
 }

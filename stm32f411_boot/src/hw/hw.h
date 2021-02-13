@@ -31,7 +31,7 @@
 #include "files.h"
 #include "ymodem.h"
 #include "cmd.h"
-
+#include "util.h"
 
 
 void hwInit(void);

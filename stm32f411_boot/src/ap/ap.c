@@ -39,7 +39,7 @@ void apInit(void)
   {
     if (buttonGetPressed(_DEF_BUTTON1) == false)
     {
-      if (bootVerifyFw() == true)
+      if (bootVerifyFw() == true && bootVerifyCrc() == true)
       {
         bootJumpToFw();
       }

@@ -27,7 +27,7 @@ extern firm_version_t boot_ver;
 
 firm_version_t *p_boot_ver = &boot_ver;
 firm_version_t *p_firm_ver = (firm_version_t *)(FLASH_ADDR_FW_VER);
-
+firm_tag_t     *p_firm_tag = (firm_tag_t *)FLASH_ADDR_TAG;
 
 
 static void bootCmdReadBootVersion(cmd_t *p_cmd);
@@ -56,6 +56,38 @@ bool bootVerifyFw(void)
 
 
   if ((*jump_addr) >= FLASH_ADDR_START && (*jump_addr) <  FLASH_ADDR_END)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+bool bootVerifyCrc(void)
+{
+  uint8_t *p_data;
+  uint16_t fw_crc;
+
+  if (p_firm_tag->magic_number != FLASH_MAGIC_NUMBER)
+  {
+    return false;
+  }
+
+  p_data = (uint8_t *)p_firm_tag->tag_flash_start;
+  fw_crc = 0;
+
+  uint32_t pre_time;
+  uint32_t exe_time;
+  pre_time = millis();
+  for (int i=0; i<p_firm_tag->tag_flash_length; i++)
+  {
+    utilUpdateCrc(&fw_crc, p_data[i]);
+  }
+  exe_time = millis()-pre_time;
+
+  if (fw_crc == p_firm_tag->tag_flash_crc)
   {
     return true;
   }
@@ -215,9 +247,16 @@ void bootCmdJumpToFw(cmd_t *p_cmd)
 {
   if (bootVerifyFw() == true)
   {
-    cmdSendResp(p_cmd, BOOT_CMD_JUMP_TO_FW, CMD_OK, NULL, 0);
-    delay(100);
-    bootJumpToFw();
+    if (bootVerifyCrc() == true)
+    {
+      cmdSendResp(p_cmd, BOOT_CMD_JUMP_TO_FW, CMD_OK, NULL, 0);
+      delay(100);
+      bootJumpToFw();
+    }
+    else
+    {
+      cmdSendResp(p_cmd, BOOT_CMD_JUMP_TO_FW, BOOT_ERR_FW_CRC, NULL, 0);
+    }
   }
   else
   {
